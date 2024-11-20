@@ -1,0 +1,77 @@
+class Solution {
+public:
+    void incDec(char ch, vector<int>&currCount, int inc) //to increment decrement count of 'a', b', 'c'
+    {
+        if (ch == 'a') currCount[0] += inc;
+        else if (ch == 'b') currCount[1] += inc;
+        else if (ch == 'c') currCount[2] += inc;
+    }
+ //==========================================================================================================================================
+    //check whether the deleted window contains atleast k a's, b's and c's
+    bool deletedWindowValid(vector<int>&totalCount, vector<int>&currCount, int k) 
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            int deletedCount = totalCount[i] - currCount[i];
+            if (deletedCount >= k) continue;
+            return false;
+        }
+        return true;
+    }
+//=====================================================================================================================================
+    bool isValid(string& s, vector<int>&totalCount, int& k, int windowSize) 
+    {
+        //Sliding window method to efficiently keep a track of count of a, b and c in the "REMAINING WINDOW"
+        vector<int>currCount(3, 0);
+        int i = 0;
+        while(i < windowSize)
+        {
+            incDec(s[i], currCount, +1);
+            i++;
+        }
+        if (deletedWindowValid(totalCount, currCount, k)) {  return true; } //check the validity of "DELTED WINDOW"
+        //==============================================================
+        while(i < s.size())
+        {
+            incDec(s[i], currCount, +1); //add curr char to the window
+            incDec(s[i - windowSize], currCount, -1); //remove (curr - windowSize) char from the window
+            if (deletedWindowValid(totalCount, currCount, k)) return true;
+            i++;
+        }
+        //==============================================================
+        return false; 
+    }
+//===========================================================================================================================================
+    int takeCharacters(string s, int k) 
+    {
+        if (k == 0) return 0;
+        
+        int n = s.size();
+        vector<int>totalCount(3, 0); //0 for A, 1 for B, 2 for C
+        for (char ch : s)
+        {
+            if (ch == 'a') totalCount[0]++;
+            else if (ch == 'b') totalCount[1]++;
+            else if (ch == 'c') totalCount[2]++;
+        }
+        if ((totalCount[0] < k) || (totalCount[1] < k) || (totalCount[2] < k)) return -1;
+        //=================================================================
+        //BINARY SEARCH for getting the maximum remaining window
+        int low = 0, high = n;
+        int ans = n;
+        while(low <= high)
+        {
+            int windowSize = low + (high - low) / 2;
+            if (isValid(s, totalCount, k, windowSize)) 
+            {
+                ans = windowSize;
+                low = windowSize + 1;
+            }
+            else high = windowSize - 1;
+        }
+        //=====================================================================
+        //deltedWindowSize = n - remaining windowSize
+        return (n - ans);
+    }
+//===========================================================================================================================================
+};
