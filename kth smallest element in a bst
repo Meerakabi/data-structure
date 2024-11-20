@@ -1,0 +1,15 @@
+class Solution {
+public:
+    //inorder travesal
+    void inorder( TreeNode* root,vector<int> &nod){
+        if(!root) return;
+        inorder(root->left,nod);
+        nod.push_back(root->val);
+        inorder(root->right,nod);
+    }
+    int kthSmallest(TreeNode* root, int k) {
+        vector<int> nod;
+        inorder(root,nod);
+        return nod[k-1];
+    }
+};
